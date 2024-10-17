@@ -1,7 +1,6 @@
 package com.habittracker.service;
 
 import com.habittracker.model.Habit;
-import com.habittracker.model.HabitCompletion;
 import com.habittracker.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +18,6 @@ class HabitServiceTest {
 
     @Mock
     private User user;
-
-    @Mock
-    private Habit habit;
-
-    @Mock
-    private HabitCompletion habitCompletion;
 
     @InjectMocks
     private HabitService habitService;

@@ -9,6 +9,7 @@ import com.habittracker.model.Habit;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileWriter;
@@ -104,10 +105,10 @@ public class Main {
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    blockUser(scanner, adminService);
+                    blockUser(scanner, userService);
                     return currentUser;
                 case "2":
-                    deleteUser(scanner, adminService);
+                    deleteUser(scanner, userService);
                     return currentUser;
                 case "3":
                     showUsers(adminService);
@@ -150,16 +151,81 @@ public class Main {
 
     }
 
-    private static void blockUser(Scanner scanner, AdminService adminService){
-        adminService.blockUser(scanner);
+    private static void blockUser(Scanner scanner, UserService userService){
+        Map<String, User> users = userService.getAllUsers();
+        List<User> usersList = users.values().stream().toList();
+        if(usersList.isEmpty()){
+            System.out.println("No active users.");
+            return;
+        }
+        for (int i = 0; i < usersList.size(); i++) {
+            System.out.println(i+1 + ". " + usersList.get(i).getName());
+        }
+        System.out.println("Select user to block, or type 0 to exit:");
+        int choice;
+        while(true){
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+                if (choice < 0 || choice > usersList.size()) {
+                    System.out.println("Wrong habit number. Try again.");
+                } else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Enter right number.");
+            }
+        }
+        if(choice == 0) {
+            return;
+        } else {
+            usersList.get(choice-1).setBlocked(true);
+            System.out.println("User has been blocked.");
+        }
     }
 
     private static void showUsers(AdminService adminService){
-        System.out.println(adminService.getAllUsersWithHabits());
+        List<User> usersList = adminService.getAllUsersWithHabits();
+        StringBuilder result = new StringBuilder();
+        for (User user : usersList) {
+            if(!user.isAdmin()) {
+                result.append("User: ").append(user.getName()).append("\n");
+                result.append("Habits: \n");
+                user.getHabits().forEach(habit -> result.append(" - ").append(habit.getName()).append("\n"));
+            }
+        }
+        System.out.println(result);
     }
 
-    private static void deleteUser(Scanner scanner, AdminService adminService){
-        adminService.deleteUser(scanner);
+    private static void deleteUser(Scanner scanner, UserService userService){
+        Map<String, User> users = userService.getAllUsers();
+        List<User> usersList = users.values().stream().toList();
+        if(usersList.isEmpty()){
+            System.out.println("No active users.");
+            return;
+        }
+        for (int i = 0; i < usersList.size(); i++) {
+            System.out.println(i+1 + ". " + usersList.get(i).getName());
+        }
+        System.out.println("Select user to delete, or type 0 to exit:");
+        int choice;
+        while(true){
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+                if (choice < 0 || choice > usersList.size()) {
+                    System.out.println("Wrong habit number. Try again.");
+                } else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Enter right number.");
+            }
+        }
+        if(choice == 0) {
+            return;
+        } else {
+            userService.deleteUser(usersList.get(choice-1).getEmail());
+            System.out.println("User has been deleted.");
+        }
     }
 
     private static User editProfile(Scanner scanner, UserService userService, User currentUser) {
