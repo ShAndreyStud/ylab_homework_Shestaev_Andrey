@@ -1,5 +1,5 @@
 package com.habittracker.model;
-
+/*
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,3 +80,4 @@ public class Habit {
         this.completions.add(completion);
     }
 }
+*/

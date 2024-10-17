@@ -1,5 +1,5 @@
 package com.habittracker.service;
-
+/*
 import com.habittracker.model.User;
 import java.util.HashMap;
 import java.util.Map;
@@ -104,3 +104,4 @@ public class UserService {
         return withoutAdmin;
     }
 }
+*/

@@ -4,12 +4,95 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
+    private long id;
     private String name;
     private String email;
     private String password;
+    private Role role;
+    List<ArrayList> habits;
+
+    public enum Role {
+        USER,
+        ADMIN
+    }
+
+    public User(long id, String name, String email, String password) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = Role.USER;
+        this.habits = habits = new ArrayList<>();
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public List<ArrayList> getHabits() {
+        return habits;
+    }
+
+    public void setHabits(List<ArrayList> habits) {
+        this.habits = habits;
+    }
+}
+
+
+
+/*
+import java.util.ArrayList;
+import java.util.List;
+
+public class User {
+    private String name;
+    private String email;
+    private String password;
+    private Role role;
     private List<Habit> habits;
     private boolean blocked = false;
     private boolean isAdmin = false;
+
+    public enum Role {
+        USER,
+        ADMIN
+    }
 
     public User(String name, String email, String password) {
         this.name = name;
@@ -79,3 +162,4 @@ public class User {
         return "User{name='" + name + "', email='" + email + "'}";
     }
 }
+*/

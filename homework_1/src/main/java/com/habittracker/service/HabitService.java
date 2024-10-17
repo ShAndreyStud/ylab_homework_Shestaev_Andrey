@@ -1,5 +1,5 @@
 package com.habittracker.service;
-
+/*
 import com.habittracker.model.Habit;
 import com.habittracker.model.HabitCompletion;
 import com.habittracker.model.User;
@@ -155,4 +155,4 @@ public class HabitService {
 
         return (int) Math.round(percentage * 100);
     }
-}
+}*/
