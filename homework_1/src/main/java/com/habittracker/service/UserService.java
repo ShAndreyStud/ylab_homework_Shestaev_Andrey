@@ -1,107 +1,121 @@
 package com.habittracker.service;
-/*
+
+
 import com.habittracker.model.User;
-import java.util.HashMap;
-import java.util.Map;
+import com.habittracker.repository.UserRepository;
+import com.habittracker.repository.UserRepositoryImpl;
 
+import java.util.List;
+import java.util.Optional;
+
+import static com.habittracker.model.User.Role;
+
+/**
+ * Сервисный класс для управления операциями с пользователями, такими как регистрация,
+ * вход в систему, обновление профиля и прочее.
+ * Этот класс взаимодействует с UserRepository для выполнения CRUD операций с пользователями.
+ */
 public class UserService {
-    private Map<String, User> users = new HashMap<>();
+    public UserRepository userRepository = new UserRepositoryImpl();
 
+    /**
+     * Конструктор по умолчанию, который инициализирует сервис с администратором по умолчанию.
+     */
     public UserService() {
-        // Создаем администратора с заранее известными данными
-        User admin = new User("Admin", "admin", "admin", true);
-        users.put(admin.getEmail(), admin);
+        User admin = new User("Admin", "admin", "admin", Role.ADMIN);
     }
 
-    // Регистрация нового пользователя
+    /**
+     * Регистрирует нового пользователя с указанными именем, электронной почтой и паролем.
+     *
+     * @param name     имя пользователя, которого нужно зарегистрировать.
+     * @param email    электронная почта пользователя, которого нужно зарегистрировать.
+     * @param password пароль пользователя, которого нужно зарегистрировать.
+     * @return сообщение, указывающее на успех или неудачу.
+     */
     public String registerUser(String name, String email, String password) {
-        if (users.containsKey(email)) {
+        if (userRepository.getUser(email) != null) {
             return "Error: A user with this email address is already registered.";
         }
 
-        User user = new User(name, email, password);
-        users.put(email, user);
+        User user = new User(name, email, password, Role.USER);
+        userRepository.addUser(user);
         return "The registration was successful.";
     }
 
-    // Авторизация пользователя
-    public String loginUser(String email, String password) {
-        User user = users.get(email);
-
-        if (user == null) {
-            return "Error: No user with this email was found.";
+    /**
+     * Выполняет вход пользователя, проверяя предоставленные электронную почту и пароль.
+     *
+     * @param email    электронная почта пользователя, который пытается войти.
+     * @param password пароль пользователя, который пытается войти.
+     * @return Optional, содержащий пользователя, если учетные данные верны, или пустой Optional, если нет.
+     */
+    public Optional<User> loginUser(String email, String password) {
+        User user = userRepository.getUser(email);
+        if (user == null || !user.getPassword().equals(password)) {
+            return Optional.empty();
         }
-
-        if (!user.getPassword().equals(password)) {
-            return "Error: Incorrect password.";
-        }
-
-        return "Authorization was successful. Welcome, " + user.getName() + "!";
+        return Optional.of(user);
     }
 
-    // Редактирование профиля пользователя
-    public String updateUserProfile(String email, String newName, String newEmail) {
-        User user = users.get(email);
-
-        if (user == null) {
-            return "Error: User not found.";
+    /**
+     * Обновляет профиль пользователя, изменяя его имя и/или электронную почту.
+     * Проверяет, чтобы новая электронная почта была уникальной.
+     *
+     * @param user     пользователь, чей профиль нужно обновить.
+     * @param newName  новое имя для пользователя.
+     * @param newEmail новая электронная почта для пользователя.
+     * @return Optional, содержащий обновленного пользователя, если операция успешна, или пустой Optional, если почта уже занята.
+     */
+    public Optional<User> updateUserProfile(User user, String newName, String newEmail) {
+        if (!user.getEmail().equals(newEmail) && userRepository.getUser(newEmail) != null) {
+            return Optional.empty();
         }
 
-        // Проверка на уникальность нового email
-        if (!email.equals(newEmail) && users.containsKey(newEmail)) {
-            return "Error: The new email is already taken by another user.";
-        }
-
-        // Обновление данных пользователя
-        user.setName(newName);
-        user.setEmail(newEmail);
-
-        // Если email изменился, обновляем ключ в коллекции
-        if (!email.equals(newEmail)) {
-            users.remove(email);
-            users.put(newEmail, user);
-        }
-
-        return "The profile has been successfully updated.";
+        userRepository.updateUser(user, newName, newEmail);
+        return Optional.of(user);
     }
 
-    // Удаление аккаунта пользователя
-    public String deleteUser(String email) {
-        if (users.remove(email) != null) {
-            return "The user account has been successfully deleted.";
-        } else {
-            return "Error: User not found.";
-        }
+    /**
+     * Блокирует указанного пользователя.
+     *
+     * @param user  пользователь, которого нужно заблокировать или разблокировать.
+     * @param block статус блокировки (true для блокировки).
+     * @return Optional, содержащий обновленного пользователя.
+     */
+    public Optional<User> updateUserProfile(User user, Boolean block) {
+
+        userRepository.blockUser(user, block);
+
+        return Optional.of(user);
     }
 
-    public String resetPassword(String email) {
-        User user = users.get(email);
-
-        if (user == null) {
-            return "Error: User not found.";
-        }
-
-        // Генерация временного пароля
-        String temporaryPassword = "temp1234";
-        user.setPassword(temporaryPassword);
-
-        // Симуляция отправки на email
-        return "Temporary password sent to " + email + ": " + temporaryPassword;
+    /**
+     * Удаляет указанного пользователя из системы.
+     *
+     * @param currentUser пользователь, которого нужно удалить.
+     */
+    public void deleteUser(User currentUser) {
+        userRepository.deleteUser(currentUser);
     }
 
-
-    public User getUserByEmail(String email) {
-        return users.get(email);
+    /**
+     * Сбрасывает пароль указанного пользователя.
+     *
+     * @param currentUser пользователь, чей пароль нужно сбросить.
+     * @param newPassword новый пароль для установки.
+     * @return обновленный пользователь с новым паролем.
+     */
+    public User resetPassword(User currentUser, String newPassword) {
+        return userRepository.updateUserPassword(currentUser, newPassword);
     }
 
-    public Map<String, User> getAllUsers() {
-        Map <String, User> withoutAdmin = new HashMap<>(users);
-        for (Map.Entry<String, User> entry : users.entrySet()) {
-            if (entry.getValue().isAdmin()) {
-                withoutAdmin.remove(entry.getKey());
-            }
-        }
-        return withoutAdmin;
+    /**
+     * Возвращает список всех пользователей, за исключением администраторов.
+     *
+     * @return список всех пользователей (кроме администраторов) в системе.
+     */
+    public List<User> getAllUsers(){
+        return userRepository.getAllUsers();
     }
 }
-*/

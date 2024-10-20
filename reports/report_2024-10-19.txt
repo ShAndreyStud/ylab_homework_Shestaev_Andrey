@@ -1,0 +1,31 @@
+Hello, e!
+This is your report on keeping your habits:
+DAILY habbit daily1:
+   Current streak: 3
+   For all time fulfilled 75% 
+   Today's accomplished 75% 
+   In the last week, accomplished 75% 
+   In the last month, accomplished 75% 
+
+WEEKLY habbit weakly1:
+   Current streak: 2
+   For all time fulfilled 100% 
+   Today's accomplished 100% 
+   In the last week, accomplished 100% 
+   In the last month, accomplished 100% 
+
+DAILY habbit daily2:
+   Current streak: 0
+   For all time fulfilled 0% 
+   Today's accomplished 0% 
+   In the last week, accomplished 0% 
+   In the last month, accomplished 0% 
+
+WEEKLY habbit weakly2:
+   Current streak: 0
+   For all time fulfilled 0% 
+   Today's accomplished 0% 
+   In the last week, accomplished 0% 
+   In the last month, accomplished 0% 
+
+Good luck!

@@ -1,25 +1,65 @@
 package com.habittracker.model;
-/*
+
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * Класс, представляющий привычку пользователя.
+ * Содержит информацию о названии, описании, частоте, дате создания,
+ * пользователе и завершениях привычки.
+ */
 public class Habit {
     private String name;
     private String description;
-    private String frequency;
+    private Frequency frequency;
     private LocalDate createDate;
+
+    private User user;
     private List<HabitCompletion> completions;
 
-    public Habit(String name, String description, String frequency) {
+    /**
+     * Перечисление для частоты выполнения привычки.
+     */
+    public enum Frequency {
+        DAILY,
+        WEEKLY
+    }
+
+    /**
+     * Конструктор класса Habit.
+     *
+     * @param name Название привычки.
+     * @param description Описание привычки.
+     * @param frequency Частота выполнения привычки.
+     * @param user Пользователь, которому принадлежит привычка.
+     */
+    public Habit(String name, String description, Frequency frequency, User user) {
         this.name = name;
         this.description = description;
         this.frequency = frequency;
         this.createDate = LocalDate.now();
+        this.user = user;
         this.completions = new ArrayList<>();
     }
 
+    /**
+     * Перегруженный конструктор класса Habit.
+     *
+     * @param name Название привычки.
+     * @param description Описание привычки.
+     * @param frequency Частота выполнения привычки.
+     * @param user Пользователь, которому принадлежит привычка.
+     * @param dateCreate Дата создания привычки.
+     */
+    public Habit(String name, String description, Frequency frequency, User user, LocalDate dateCreate) {
+        this.name = name;
+        this.description = description;
+        this.frequency = frequency;
+        this.createDate = dateCreate;
+        this.user = user;
+        this.completions = new ArrayList<>();
+    }
 
     public String getName() {
         return name;
@@ -37,11 +77,11 @@ public class Habit {
         this.description = description;
     }
 
-    public String getFrequency() {
+    public Frequency getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(String frequency) {
+    public void setFrequency(Frequency frequency) {
         this.frequency = frequency;
     }
 
@@ -53,31 +93,22 @@ public class Habit {
         this.createDate = createDate;
     }
 
-    public void setCompletions(List<HabitCompletion> completions) {
-        this.completions = completions;
-    }
-
     public List<HabitCompletion> getCompletions() {
         return completions;
     }
 
-    public List<HabitCompletion> getCompletionsByStartDate(LocalDate startDate){
-        List<HabitCompletion> completionsByStartDate = new ArrayList<>();
-        List<HabitCompletion> reverseCompletions = new ArrayList<>(this.completions);
-        Collections.reverse(reverseCompletions);
-        for (HabitCompletion completion : reverseCompletions){
-            LocalDate nextMark = completion.getNextMarkDate();
-            if(startDate.isBefore(nextMark)){
-                completionsByStartDate.add(completion);
-            }
-        }
-
-        return completionsByStartDate;
+    public void setCompletions(List<HabitCompletion> completions) {
+        this.completions = completions;
     }
 
+    public User getUser() {
+        return user;
+    }
 
-    public void addCompletion(HabitCompletion completion) {
-        this.completions.add(completion);
+    public void setUser(User user) {
+        this.user = user;
     }
 }
-*/
+
+
+

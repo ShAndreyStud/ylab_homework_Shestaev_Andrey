@@ -1,22 +1,32 @@
 package com.habittracker.model;
-/*
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * Класс, представляющий завершение привычки пользователем.
+ * Содержит информацию о дате отметки завершения, серийном номере завершения и
+ * ссылке на связанную привычку.
+ */
 public class HabitCompletion {
     private LocalDate markDate;
-    private LocalDate nextMarkDate;
+    private int serialNumber;
 
+    private Habit habit;
 
-    public HabitCompletion(Habit habit) {
-        this.markDate = LocalDate.now();
-        if (habit.getFrequency().equals("daily")) {
-            this.nextMarkDate = markDate.plusDays(1);
+    /**
+     * Конструктор класса HabitCompletion.
+     *
+     * @param markDate Дата завершения привычки.
+     * @param habit Связанная привычка.
+     */
+    public HabitCompletion(LocalDate markDate, Habit habit) {
+        this.markDate = markDate;
+        this.habit = habit;
+        if(habit.getFrequency() == Habit.Frequency.DAILY){
+            this.serialNumber = (int) ChronoUnit.DAYS.between(habit.getCreateDate(), markDate) + 1;
         } else {
-            LocalDate today = LocalDate.now();
-            LocalDate start = habit.getCreateDate();
-            int weeksToAdd = (int) ChronoUnit.WEEKS.between(start, today) + 1;
-            this.nextMarkDate = start.plusWeeks(weeksToAdd);
+            this.serialNumber = (int) ChronoUnit.WEEKS.between(habit.getCreateDate(), markDate) + 1;
         }
     }
 
@@ -25,16 +35,23 @@ public class HabitCompletion {
         return markDate;
     }
 
-    public LocalDate getNextMarkDate() {
-        return nextMarkDate;
-    }
-
-    public void setNextMarkDate(LocalDate nextMarkDate) {
-        this.nextMarkDate = nextMarkDate;
-    }
-
-    public void setMarkDate(LocalDate markDate){
+    public void setMarkDate(LocalDate markDate) {
         this.markDate = markDate;
     }
+
+    public int getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(int serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public Habit getHabit() {
+        return habit;
+    }
+
+    public void setHabit(Habit habit) {
+        this.habit = habit;
+    }
 }
-*/
