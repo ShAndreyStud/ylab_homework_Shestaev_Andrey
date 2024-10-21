@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/migrations/001__create_app_schema.yml
+  - include:
+      file: db/migrations/002__create_user_table.yml
+  - include:
+      file: db/migrations/003__create_habit_table.yml
+  - include:
+      file: db/migrations/004__create_habit_completion_table.yml
+  - include:
+      file: db/migrations/005_insert_rows.yml
