@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_habit_table
+      author: sheandstud
+      changes:
+        - createTable:
+            tableName: habit
+            schemaName: app_schema
+            remarks: "Stores information about user habits, including frequency and associated user"
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                  remarks: "Unique identifier for each habit"
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                  remarks: "Name of the habit"
+              - column:
+                  name: description
+                  type: TEXT
+                  constraints:
+                    nullable: true
+                  remarks: "Detailed description of the habit"
+              - column:
+                  name: frequency
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                  remarks: "Frequency of the habit, e.g., daily, weekly"
+              - column:
+                  name: create_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+                  remarks: "The date when the habit was created"
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                  remarks: "Foreign key referencing the user who owns the habit"
+  - changeSet:
+      id: add_foreign_key_to_habit
+      author: sheandstud
+      changes:
+        - addForeignKeyConstraint:
+            baseTableSchemaName: app_schema
+            baseTableName: habit
+            baseColumnNames: user_id
+            referencedTableSchemaName: app_schema
+            referencedTableName: user
+            referencedColumnNames: id
+            constraintName: fk_habit_user
+            remarks: "Establishes a relationship between habits and users"
