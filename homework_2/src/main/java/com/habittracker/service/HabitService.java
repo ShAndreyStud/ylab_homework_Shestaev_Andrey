@@ -22,10 +22,23 @@ import java.util.stream.Collectors;
  * Он взаимодействует с репозиториями привычек и завершений привычек для выполнения операций CRUD (создание, обновление, удаление) и другой бизнес-логики.
  */
 public class HabitService {
+
+    /**
+     * Репозиторий привычек, который используется для доступа к данным привычек.
+     */
     public HabitRepository habitRepository;
+
+    /**
+     * Репозиторий завершений привычек, который используется для доступа к данным завершений привычек.
+     */
     HabitCompletionRepository habitCompletionRepository;
 
-
+    /**
+     * Конструктор класса HabitService.
+     *
+     * @param habitCompletionRepository Репозиторий завершений привычек, который будет использоваться в сервисе.
+     * @param habitRepository Репозиторий привычек, который будет использоваться в сервисе.
+     */
     public HabitService(HabitCompletionRepository habitCompletionRepository, HabitRepository habitRepository) {
         this.habitCompletionRepository = habitCompletionRepository;
         this.habitRepository = habitRepository;

@@ -6,6 +6,7 @@ databaseChangeLog:
         - createTable:
             tableName: user
             schemaName: app_schema
+            remarks: "Stores user information such as name, email, and role"
             columns:
               - column:
                   name: id
@@ -14,28 +15,34 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
                     nullable: false
+                  remarks: "Unique identifier for each user"
               - column:
                   name: name
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
+                  remarks: "The full name of the user"
               - column:
                   name: email
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
                     unique: true
+                  remarks: "The email address of the user, must be unique"
               - column:
                   name: password
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
+                  remarks: "The encrypted password of the user"
               - column:
                   name: role
                   type: VARCHAR(50)
                   constraints:
                     nullable: false
+                  remarks: "The role of the user (e.g., admin, user)"
               - column:
                   name: is_blocked
                   type: BOOLEAN
                   defaultValueBoolean: false
+                  remarks: "Indicates if the user account is blocked (true) or active (false)"

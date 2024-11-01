@@ -10,23 +10,41 @@ import java.util.List;
  * пользователе и завершениях привычки.
  */
 public class Habit {
+    /** Уникальный идентификатор привычки */
     private int id;
+
+    /** Название привычки */
     private String name;
+
+    /** Описание привычки */
     private String description;
+
+    /** Частота выполнения привычки (ежедневная или еженедельная) */
     private Frequency frequency;
+
+    /** Дата создания привычки */
     private LocalDate createDate;
 
+    /** Пользователь, которому принадлежит привычка */
     private User user;
+
+    /** Список выполнений данной привычки */
     private List<HabitCompletion> completions;
 
     /**
      * Перечисление для частоты выполнения привычки.
      */
     public enum Frequency {
+        /** Ежедневная привычка */
         DAILY,
+        /** Еженедельная привычка */
         WEEKLY
     }
 
+    /**
+     * Конструктор класса Habit.
+     * Инициализирует новый объект привычки с заданными значениями полей.
+     */
     public Habit(){
 
     }

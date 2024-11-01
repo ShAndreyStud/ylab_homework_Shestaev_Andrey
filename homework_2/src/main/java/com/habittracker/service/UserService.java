@@ -17,6 +17,9 @@ import static com.habittracker.model.User.Role;
  * Этот класс взаимодействует с UserRepository для выполнения CRUD операций с пользователями.
  */
 public class UserService {
+    /**
+     * Репозиторий пользователей, который используется для доступа к данным пользователей.
+     */
     public UserRepository userRepository;
 
     /**

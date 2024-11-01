@@ -1,5 +1,6 @@
 package com.habittracker.repository;
 
+import com.habittracker.config.DatabaseConfig;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
@@ -55,11 +56,8 @@ public class UserRepositoryImplTest {
 
     @BeforeEach
     public void setUp() throws SQLException {
-        connection = DriverManager.getConnection(
-                postgresContainer.getJdbcUrl(),
-                postgresContainer.getUsername(),
-                postgresContainer.getPassword());
-        userRepository = new UserRepositoryImpl(connection);
+        DatabaseConfig config = new DatabaseConfig("homework_2/src/main/resources/application.properties");
+        userRepository = new UserRepositoryImpl(config);
         connection.setAutoCommit(false);
     }
 

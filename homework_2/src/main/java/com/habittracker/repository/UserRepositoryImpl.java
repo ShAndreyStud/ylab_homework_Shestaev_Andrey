@@ -1,5 +1,7 @@
 package com.habittracker.repository;
 
+import com.habittracker.config.DatabaseConfig;
+import com.habittracker.infrastructure.db.DatabaseConnection;
 import com.habittracker.model.User;
 
 import java.util.ArrayList;
@@ -8,10 +10,10 @@ import java.sql.*;
 
 
 public class UserRepositoryImpl implements UserRepository{
-    private final Connection connection;
+    private final DatabaseConfig config;
 
-    public UserRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public UserRepositoryImpl(DatabaseConfig config) {
+        this.config = config;
     }
 
     /**
@@ -22,12 +24,15 @@ public class UserRepositoryImpl implements UserRepository{
      */
     @Override
     public User getUser(String email) {
-        String query = "SELECT * FROM app_schema.user WHERE email = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(UserQueries.SELECT_USER_BY_EMAIL)) {
+
             statement.setString(1, email);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                return mapRowToUser(resultSet);
+            try(ResultSet resultSet = statement.executeQuery()){
+                if (resultSet.next()) {
+                    return mapRowToUser(resultSet);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -44,8 +49,10 @@ public class UserRepositoryImpl implements UserRepository{
      */
     @Override
     public boolean addUser(User user) {
-        String query = "INSERT INTO app_schema.user (name, email, password, role, is_blocked) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(UserQueries.INSERT_USER)) {
+
             statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
             statement.setString(3, user.getPassword());
@@ -72,8 +79,10 @@ public class UserRepositoryImpl implements UserRepository{
      */
     @Override
     public boolean updateUser(User user, String newName, String newEmail) {
-        String query = "UPDATE app_schema.user SET name = ?, email = ? WHERE email = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(UserQueries.UPDATE_USER)) {
+
             statement.setString(1, newName);
             statement.setString(2, newEmail);
             statement.setString(3, user.getEmail());
@@ -86,11 +95,6 @@ public class UserRepositoryImpl implements UserRepository{
                 connection.rollback();
             }
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                rollbackEx.printStackTrace();
-            }
             e.printStackTrace();
         }
         return false;
@@ -105,8 +109,10 @@ public class UserRepositoryImpl implements UserRepository{
      */
     @Override
     public boolean blockUser(User user, Boolean block) {
-        String query = "UPDATE app_schema.user SET is_blocked = ? WHERE email = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(UserQueries.UPDATE_BLOCK_USER)) {
+
             statement.setBoolean(1, block);
             statement.setString(2, user.getEmail());
             int rowsAffected = statement.executeUpdate();
@@ -126,8 +132,10 @@ public class UserRepositoryImpl implements UserRepository{
      */
     @Override
     public boolean deleteUser(User user) {
-        String query = "DELETE FROM app_schema.user WHERE email = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(UserQueries.DELETE_USER)) {
+
             statement.setString(1, user.getEmail());
             int rowsAffected = statement.executeUpdate();
             if (rowsAffected > 0) {
@@ -137,11 +145,6 @@ public class UserRepositoryImpl implements UserRepository{
                 connection.rollback();
             }
         } catch (SQLException e) {
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                rollbackEx.printStackTrace();
-            }
             e.printStackTrace();
         }
         return false;
@@ -156,8 +159,10 @@ public class UserRepositoryImpl implements UserRepository{
      */
     @Override
     public User updateUserPassword(User user, String newPassword) {
-        String query = "UPDATE app_schema.user SET password = ? WHERE email = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(UserQueries.UPDATE_USER_PASSWORD)) {
+
             statement.setString(1, newPassword);
             statement.setString(2, user.getEmail());
             if (statement.executeUpdate() > 0) {
@@ -179,12 +184,16 @@ public class UserRepositoryImpl implements UserRepository{
     @Override
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        String query = "SELECT * FROM app_schema.user WHERE role <> 'ADMIN'";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                users.add(mapRowToUser(resultSet));
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(UserQueries.SELECT_ALL_USERS)) {
+
+            try(ResultSet resultSet = statement.executeQuery()){
+                while (resultSet.next()) {
+                    users.add(mapRowToUser(resultSet));
+                }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -204,15 +213,18 @@ public class UserRepositoryImpl implements UserRepository{
 
     @Override
     public Integer getUserIdByEmail(String email) {
-        String sql = "SELECT id FROM app_schema.user WHERE email = ?";
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(UserQueries.SELECT_USER_ID_BY_EMAIL)) {
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, email);
-            ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (resultSet.next()) {
-                return resultSet.getInt("id");
+            try(ResultSet resultSet = preparedStatement.executeQuery()){
+                if (resultSet.next()) {
+                    return resultSet.getInt("id");
+                }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

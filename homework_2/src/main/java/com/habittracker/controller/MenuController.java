@@ -23,20 +23,44 @@ import java.util.Scanner;
  */
 public class MenuController {
 
+    /** Текущий авторизованный пользователь */
     private User currentUser;
-    UserService userService;
-    HabitService habitService;
-    HabitCompletionService habitCompletionService;
-    String choice;
-    int intChoice;
-    List<User> allUsers;
-    Scanner scanner;
-    String email;
-    String name;
-    String password;
-    Habit.Frequency frequency;
 
-    List<Habit> allHabits;
+    /** Сервис для управления пользователями */
+    private final UserService userService;
+
+    /** Сервис для управления привычками */
+    private final HabitService habitService;
+
+    /** Сервис для управления выполнения привычек */
+    private final HabitCompletionService habitCompletionService;
+
+    /** Выбор пользователя в виде строки*/
+    private String choice;
+
+    /** Выбор пользователя в целочисленном виде */
+    private int intChoice;
+
+    /** Список всех пользователей */
+    private List<User> allUsers;
+
+    /** Сканер для получения ввода от пользователя */
+    private final Scanner scanner;
+
+    /** Email пользователя */
+    private String email;
+
+    /** Имя пользователя */
+    private String name;
+
+    /** Пароль пользователя */
+    private String password;
+
+    /** Частота выполнения привычки */
+    private Habit.Frequency frequency;
+
+    /** Список всех привычек */
+    private List<Habit> allHabits;
 
     /**
      * Конструктор, который инициализирует контроллер с необходимыми сервисами.

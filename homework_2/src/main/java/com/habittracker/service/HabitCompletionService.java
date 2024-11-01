@@ -16,8 +16,17 @@ import java.util.List;
  * Он взаимодействует с репозиторием {@link HabitCompletionRepository}, чтобы сохранять, удалять и получать данные о выполненных привычках.
  */
 public class HabitCompletionService {
+
+    /**
+     * Репозиторий завершений привычек, который используется для доступа к данным завершений привычек.
+     */
     public HabitCompletionRepository habitCompletionRepository;
 
+    /**
+     * Конструктор класса HabitCompletionService.
+     *
+     * @param habitCompletionRepository Репозиторий завершений привычек, который будет использоваться в сервисе.
+     */
     public HabitCompletionService(HabitCompletionRepository habitCompletionRepository) {
         this.habitCompletionRepository = habitCompletionRepository;
     }

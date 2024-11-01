@@ -1,5 +1,7 @@
 package com.habittracker.repository;
 
+import com.habittracker.config.DatabaseConfig;
+import com.habittracker.infrastructure.db.DatabaseConnection;
 import com.habittracker.model.Habit;
 import com.habittracker.model.HabitCompletion;
 
@@ -11,10 +13,10 @@ import java.util.List;
 
 
 public class HabitCompletionRepositoryImpl implements HabitCompletionRepository{
-    private final Connection connection;
+    private final DatabaseConfig config;
 
-    public HabitCompletionRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public HabitCompletionRepositoryImpl(DatabaseConfig config) {
+        this.config = config;
     }
     /**
      * Получает выполнение привычки по заданному серийному номеру для указанной привычки.
@@ -25,13 +27,16 @@ public class HabitCompletionRepositoryImpl implements HabitCompletionRepository{
      */
     @Override
     public HabitCompletion getHabitCompletion(Habit habit, Integer serialNumber) {
-        String query = "SELECT * FROM app_schema.habit_completion WHERE habit_id = ? AND serial_number = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(HabitCompletionQueries.SELECT_HABIT_COMPLETION)) {
+
             statement.setInt(1, habit.getId());
             statement.setInt(2, serialNumber);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                return mapToHabitCompletion(resultSet, habit);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapToHabitCompletion(resultSet, habit);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -49,8 +54,11 @@ public class HabitCompletionRepositoryImpl implements HabitCompletionRepository{
      */
     @Override
     public boolean addHabitCompletion(Habit habit, HabitCompletion newCompletion) {
-        String query = "INSERT INTO app_schema.habit_completion (habit_id, serial_number, mark_date) VALUES (?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(HabitCompletionQueries.INSERT_HABIT_COMPLETION)) {
+
             statement.setInt(1, habit.getId());
             statement.setInt(2, newCompletion.getSerialNumber());
             statement.setDate(3, Date.valueOf(newCompletion.getMarkDate()));
@@ -73,8 +81,10 @@ public class HabitCompletionRepositoryImpl implements HabitCompletionRepository{
      */
     @Override
     public boolean updateHabitCompletion(Habit habit, int serialNumber, HabitCompletion updatedCompletion) {
-        String query = "UPDATE app_schema.habit_completion SET mark_date = ? WHERE habit_id = ? AND serial_number = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(HabitCompletionQueries.UPDATE_HABIT_COMPLETION)) {
+
             statement.setDate(1, Date.valueOf(updatedCompletion.getMarkDate()));
             statement.setInt(2, habit.getId());
             statement.setInt(3, serialNumber);
@@ -96,8 +106,10 @@ public class HabitCompletionRepositoryImpl implements HabitCompletionRepository{
      */
     @Override
     public boolean deleteHabitCompletion(Habit habit, int serialNumber) {
-        String query = "DELETE FROM app_schema.habit_completion WHERE habit_id = ? AND serial_number = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(HabitCompletionQueries.DELETE_HABIT_COMPLETION)) {
+
             statement.setInt(1, habit.getId());
             statement.setInt(2, serialNumber);
             int rowsAffected = statement.executeUpdate();
@@ -117,8 +129,10 @@ public class HabitCompletionRepositoryImpl implements HabitCompletionRepository{
      */
     @Override
     public boolean deleteAllHabitCompletion(Habit habit) {
-        String query = "DELETE FROM app_schema.habit_completion WHERE habit_id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(HabitCompletionQueries.DELETE_ALL_HABIT_COMPLETION)) {
+
             statement.setInt(1, habit.getId());
             int rowsAffected = statement.executeUpdate();
             connection.commit();
@@ -138,13 +152,18 @@ public class HabitCompletionRepositoryImpl implements HabitCompletionRepository{
     @Override
     public List<HabitCompletion> getAllHabitCompletion(Habit habit) {
         List<HabitCompletion> completions = new ArrayList<>();
-        String query = "SELECT * FROM app_schema.habit_completion WHERE habit_id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(HabitCompletionQueries.SELECT_ALL_HABIT_COMPLETIONS)) {
+
             statement.setInt(1, habit.getId());
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                completions.add(mapToHabitCompletion(resultSet, habit));
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    completions.add(mapToHabitCompletion(resultSet, habit));
+                }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -162,14 +181,19 @@ public class HabitCompletionRepositoryImpl implements HabitCompletionRepository{
     @Override
     public List<HabitCompletion> getAllHabitCompletionByDate(Habit habit, LocalDate date) {
         List<HabitCompletion> result = new ArrayList<>();
-        String query = "SELECT * FROM app_schema.habit_completion WHERE habit_id = ? AND mark_date >= ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(HabitCompletionQueries.SELECT_ALL_HABIT_COMPLETIONS_BY_DATE)) {
+
             statement.setInt(1, habit.getId());
             statement.setDate(2, Date.valueOf(date));
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                result.add(mapToHabitCompletion(resultSet, habit));
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    result.add(mapToHabitCompletion(resultSet, habit));
+                }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

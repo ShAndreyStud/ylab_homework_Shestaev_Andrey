@@ -1,5 +1,6 @@
 package com.habittracker.repository;
 
+import com.habittracker.config.DatabaseConfig;
 import com.habittracker.model.Habit;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
@@ -59,12 +60,9 @@ public class HabitRepositoryImplTest {
 
     @BeforeEach
     public void setUp() throws SQLException {
-        connection = DriverManager.getConnection(
-                postgresContainer.getJdbcUrl(),
-                postgresContainer.getUsername(),
-                postgresContainer.getPassword());
-        userRepository = new UserRepositoryImpl(connection);
-        habitRepository = new HabitRepositoryImpl(connection);
+        DatabaseConfig config = new DatabaseConfig("homework_2/src/main/resources/application.properties");
+        userRepository = new UserRepositoryImpl(config);
+        habitRepository = new HabitRepositoryImpl(config);
         connection.setAutoCommit(false);
         clearDatabase(); // Clear database before each test
     }

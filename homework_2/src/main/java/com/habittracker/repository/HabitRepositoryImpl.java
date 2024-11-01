@@ -1,5 +1,7 @@
 package com.habittracker.repository;
 
+import com.habittracker.config.DatabaseConfig;
+import com.habittracker.infrastructure.db.DatabaseConnection;
 import com.habittracker.model.Habit;
 import com.habittracker.model.User;
 
@@ -9,10 +11,10 @@ import java.util.*;
 
 
 public class HabitRepositoryImpl implements HabitRepository{
-    private final Connection connection;
+    private final DatabaseConfig config;
 
-    public HabitRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public HabitRepositoryImpl(DatabaseConfig config) {
+        this.config = config;
     }
 
     /**
@@ -24,16 +26,19 @@ public class HabitRepositoryImpl implements HabitRepository{
      */
     @Override
     public Habit getHabit(User user, String habitName) {
-        String sql = "SELECT * FROM app_schema.habit WHERE name = ? AND user_id = (SELECT id FROM app_schema.user WHERE email = ?)";
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(HabitQueries.SELECT_HABIT)) {
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, habitName);
             stmt.setString(2, user.getEmail());
-            ResultSet resultSet = stmt.executeQuery();
 
-            if (resultSet.next()) {
-                return mapRowToHabit(resultSet);
+            try(ResultSet resultSet = stmt.executeQuery()){
+                if (resultSet.next()) {
+                    return mapRowToHabit(resultSet);
+                }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -50,9 +55,10 @@ public class HabitRepositoryImpl implements HabitRepository{
      */
     @Override
     public boolean addHabit(User user, Habit newHabit) {
-        String sql = "INSERT INTO app_schema.habit (name, description, frequency, create_date, user_id) VALUES (?, ?, ?, ?, (SELECT id FROM app_schema.user WHERE email = ?))";
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(HabitQueries.INSERT_HABIT)) {
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, newHabit.getName());
             stmt.setString(2, newHabit.getDescription());
             stmt.setString(3, newHabit.getFrequency().toString());
@@ -80,9 +86,10 @@ public class HabitRepositoryImpl implements HabitRepository{
      */
     @Override
     public boolean updateHabit(User user, Habit habit, String newName, String newDescription, Habit.Frequency newFrequency){
-        String sql = "UPDATE app_schema.habit SET name = ?, description = ?, frequency = ? WHERE name = ? AND user_id = (SELECT id FROM app_schema.user WHERE email = ?)";
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(HabitQueries.UPDATE_HABIT)) {
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, newName);
             stmt.setString(2, newDescription);
             stmt.setString(3, newFrequency.toString());
@@ -107,9 +114,10 @@ public class HabitRepositoryImpl implements HabitRepository{
      */
     @Override
     public boolean deleteHabit(User user, String habitName) {
-        String sql = "DELETE FROM app_schema.habit WHERE name = ? AND user_id = (SELECT id FROM app_schema.user WHERE email = ?)";
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(HabitQueries.DELETE_HABIT)) {
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, habitName);
             stmt.setString(2, user.getEmail());
 
@@ -131,15 +139,18 @@ public class HabitRepositoryImpl implements HabitRepository{
     @Override
     public List<Habit> getAllHabits(User user) {
         List<Habit> habitsList = new ArrayList<>();
-        String sql = "SELECT * FROM app_schema.habit WHERE user_id = (SELECT id FROM app_schema.user WHERE email = ?)";
+        try (DatabaseConnection dbConnection = new DatabaseConnection(config);
+             Connection connection = dbConnection.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(HabitQueries.SELECT_ALL_HABITS)) {
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, user.getEmail());
-            ResultSet resultSet = stmt.executeQuery();
 
-            while (resultSet.next()) {
-                habitsList.add(mapRowToHabit(resultSet));
+            try(ResultSet resultSet = stmt.executeQuery()){
+                while (resultSet.next()) {
+                    habitsList.add(mapRowToHabit(resultSet));
+                }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

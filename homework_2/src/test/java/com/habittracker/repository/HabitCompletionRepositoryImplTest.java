@@ -1,5 +1,6 @@
 package com.habittracker.repository;
 
+import com.habittracker.config.DatabaseConfig;
 import com.habittracker.model.Habit;
 import com.habittracker.model.HabitCompletion;
 import com.habittracker.model.User;
@@ -66,14 +67,10 @@ public class HabitCompletionRepositoryImplTest {
 
     @BeforeEach
     public void resetDatabase() throws SQLException {
-        connection = DriverManager.getConnection(
-                postgresContainer.getJdbcUrl(),
-                postgresContainer.getUsername(),
-                postgresContainer.getPassword());
-        connection.setAutoCommit(false);
-        habitCompletionRepository = new HabitCompletionRepositoryImpl(connection);
-        userRepository = new UserRepositoryImpl(connection);
-        habitRepository = new HabitRepositoryImpl(connection);
+        DatabaseConfig config = new DatabaseConfig("homework_2/src/main/resources/application.properties");
+        habitCompletionRepository = new HabitCompletionRepositoryImpl(config);
+        userRepository = new UserRepositoryImpl(config);
+        habitRepository = new HabitRepositoryImpl(config);
     }
 
 

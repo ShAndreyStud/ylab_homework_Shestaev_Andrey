@@ -9,13 +9,23 @@ import java.util.List;
  * пароль, роль (пользователь или администратор), статус блокировки и список привычек.
  */
 public class User {
+    /** Имя пользователя */
     private String name;
+
+    /** Электронная почта пользователя */
     private String email;
+
+    /** Пароль пользователя */
     private String password;
+
+    /** Роль пользователя (пользователь или администратор) */
     private Role role;
+
+    /** Статус блокировки пользователя */
     private boolean isBlocked;
 
-    List<Habit> habits;
+    /** Список привычек пользователя */
+    private List<Habit> habits;
 
     /**
      * Перечисление ролей пользователя.
@@ -25,6 +35,9 @@ public class User {
         ADMIN
     }
 
+    /**
+     * Конструктор по умолчанию класса User.
+     */
     public User(){
 
     }
